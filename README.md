@@ -2,6 +2,20 @@
 
 Runtime assertions for your invariants.
 
+## Why?
+
+This package is inspired by the prior art around runtime assertions in other
+languages. It tries to bridge the gap between the Go philosophy of proper
+handling by not encouraging the use of panics around assertions and by capturing
+useful, contextual information about invariants at key points of a program.
+
+Some references:
+
+- https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md#safety
+- https://doc.rust-lang.org/std/macro.assert.html
+- https://ziglang.org/documentation/master/std/#A;std:debug.assert
+- https://www.npmjs.com/package/ts-invariant
+
 ## Installation
 
 ```sh
@@ -10,7 +24,7 @@ go get -u github.com/disintegrator/inv
 
 ## Quick start
 
-Add this import line to your Go source file:
+Add this import line to your Go source files:
 
 ```go
 import "github.com/disintegrator/inv"

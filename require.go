@@ -11,10 +11,11 @@ const dbgPrefix = "_ "
 
 // Require checks a set of invariants and returns an error if any of them fail.
 // Each invariant is passed as a pair: the name of the invariant as a string and
-// a value that may be a boolean or error. If any value is false or a non-nil
-// error across the pairs, then an error is returned with all the unmet
-// invariants. Since this function checks multiple invariants, a group name is
-// used to relate these checks together.
+// a value that may be a boolean or error or function that return either of
+// these types. If any value is false or a non-nil error across the pairs, then
+// an error is returned with all the unmet invariants. Since this function
+// checks multiple invariants, a group name is used to relate these checks
+// together.
 //
 // If the invariant name starts with "_ " then it is only considered if debug
 // mode is enabled (it is by default). Other invariants are always checked.
@@ -46,11 +47,25 @@ func Require(group string, pairs ...any) error {
 		}
 
 		switch val := pred.(type) {
+		case func() error:
+			if cause := val(); cause != nil {
+				errs = errors.Join(errs, &InvariantError{
+					Group: group, Invariant: invid,
+					Caller: caller, Debug: isdebug, Cause: cause,
+				})
+			}
 		case error:
 			if val != nil {
 				errs = errors.Join(errs, &InvariantError{
 					Group: group, Invariant: invid,
 					Caller: caller, Debug: isdebug, Cause: val,
+				})
+			}
+		case func() bool:
+			if !val() {
+				errs = errors.Join(errs, &InvariantError{
+					Group: group, Invariant: invid,
+					Debug: isdebug, Caller: caller,
 				})
 			}
 		case bool:

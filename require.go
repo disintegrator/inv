@@ -66,13 +66,6 @@ func Require(group string, pairs ...any) error {
 	return errs
 }
 
-// Must is similar to Require but panics if any invariant checks fail.
-func Must(group string, pairs ...any) {
-	if err := Require(group, pairs...); err != nil {
-		panic(err)
-	}
-}
-
 // InvariantError represents an invariant mismatch. If the invariant failed
 // because of a non-nil error then Cause will be set.
 type InvariantError struct {

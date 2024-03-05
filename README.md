@@ -34,24 +34,40 @@ In any functions where you have some invariants that might constitute
 preconditions, postconditions or otherwise, check them like so:
 
 ```go
-func DoSomething(x int, species string, data []byte) error {
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/disintegrator/inv"
+)
+
+func DoSomething(x int, path string, species string, data []byte) error {
+	_, err := os.Open(path)
 	if err := inv.Require(
-		"do-something-inputs",
-		"non-zero-operand", x != 0,
-		"species-is-cat", species == "cat",
-		"non-empty-data", len(data) > 0,
+		"do something inputs",
+		"non-zero operand", x != 0,
+		"species is cat", species == "cat",
+		"non-empty data", len(data) > 0,
+		"path can be opened", err, // error value works too
 	); err != nil {
 		return err
 	}
 
-	// ... rest of function ...
+	return nil
+}
+
+func main() {
+	fmt.Println(DoSomething(0, "nope.txt", "dog", nil))
 }
 ```
 
 When invariants are not met, the returned error will summarize the failures:
 
 ```
-/tmp/sandbox800493091/assert.go:32: assertion failed: do-something-inputs: non-zero-operand
-/tmp/sandbox800493091/assert.go:32: assertion failed: do-something-inputs: species-is-cat
-/tmp/sandbox800493091/assert.go:32: assertion failed: do-something-inputs: non-empty-data
+/tmp/sandbox/prog.go:12: invariant mismatch: do something inputs: non-zero operand
+/tmp/sandbox/prog.go:12: invariant mismatch: do something inputs: species is cat
+/tmp/sandbox/prog.go:12: invariant mismatch: do something inputs: non-empty data
+/tmp/sandbox/prog.go:12: invariant mismatch: do something inputs: path can be opened: open nope.txt: no such file or directory
 ```
